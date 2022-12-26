@@ -13,15 +13,17 @@ final class DataLoader: NSObject, @unchecked Sendable {
   private var userDataDelegate: URLSessionDataDelegate?
   
   func startDataTask(_ task: URLSessionDataTask, session: URLSession, delegate: URLSessionDataDelegate?) async throws -> Response<Data> {
-    try await withTaskCancellationHandler(handler: { task.cancel() }) {
+    try await withTaskCancellationHandler(operation: {
       try await withUnsafeThrowingContinuation { continuation in
         let handler = DataTaskHandler(delegate: delegate)
         handler.completion = continuation.resume(with:)
         self.handlers[task] = handler
-        
+
         task.resume()
       }
-    }
+    }, onCancel: {
+      task.cancel()
+    })
   }
 }
 

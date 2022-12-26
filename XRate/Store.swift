@@ -9,7 +9,7 @@ let store = Store<RateListState, RateListAction>(
   environment: SystemEnvironment.live(
     environment: RateListEnvironment(
       apiClient: .live,
-      userDefaultsClient: UserDefaultsClientImpl.live
+      userDefaultsClient: .live
     )
   )
 )

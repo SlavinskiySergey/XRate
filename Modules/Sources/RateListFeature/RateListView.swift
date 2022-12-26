@@ -39,9 +39,7 @@ public struct RateListView: View {
     self.store = store
     self.viewStore = ViewStore(store.scope(state: ViewState.init(state:)))
   }
-  
-  @State private var didLoad = false
-  
+
   public var body: some View {
     VStack {
       if viewStore.isLoading {
@@ -83,11 +81,8 @@ public struct RateListView: View {
         BaseCurrencyView(currency: viewStore.baseCurrency)
       }
     }
-    .onAppear {
-      if didLoad == false {
-        didLoad = true
-        viewStore.send(.onDidLoad)
-      }
+    .onFirstAppear {
+      viewStore.send(.onFirstAppear)
     }
     .sheet(
       isPresented: viewStore.binding(
@@ -130,7 +125,7 @@ struct RateListView_Previews: PreviewProvider {
           environment: .live(
             environment: RateListEnvironment(
               apiClient: .mock,
-              userDefaultsClient: UserDefaultsClientMock.instance
+              userDefaultsClient: .mock
             )
           )
         )

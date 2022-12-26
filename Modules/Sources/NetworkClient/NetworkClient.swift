@@ -29,7 +29,7 @@ public actor NetworkClient {
     }
   }
   
-  public convenience init(baseURL: URL?) {
+  public init(baseURL: URL?) {
     self.init(configuration: Configuration(baseURL: baseURL))
   }
   

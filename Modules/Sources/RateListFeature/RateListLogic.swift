@@ -47,7 +47,7 @@ public struct RateListState: Equatable {
 
 public enum RateListAction {
   case currencyList(CurrencyListAction)
-  case onDidLoad
+  case onFirstAppear
   case rateListResponse(TaskResult<[Rate]>)
   case rateDetails(RateDetailsAction)
   case setCurrencyList(isPresented: Bool)
@@ -94,10 +94,10 @@ public let rateListReducer = Reducer<
     case .currencyList(.change(let baseCurrency)):
       state.baseCurrency = baseCurrency
       return .fireAndForget {
-        environment.userDefaultsClient.create(model: baseCurrency)
+        await environment.userDefaultsClient.create(model: baseCurrency)
       }
                     
-    case .onDidLoad:
+    case .onFirstAppear:
       if let currency: Currency = environment.userDefaultsClient.read() {
         state.baseCurrency = currency
       }
@@ -151,7 +151,7 @@ public let rateListReducer = Reducer<
         }
       }
       return .fireAndForget { [favoriteCurrencies = state.favoriteCurrencies] in
-        environment.userDefaultsClient.create(model: favoriteCurrencies)
+        await environment.userDefaultsClient.create(model: favoriteCurrencies)
       }
 
     case .rateDetails:

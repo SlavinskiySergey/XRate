@@ -4,27 +4,21 @@ public protocol UserDefaultsStorable: Codable {
   static var key: String { get }
 }
 
-public protocol UserDefaultsClient {
-  func create<Model: UserDefaultsStorable>(model: Model)
-  func delete<Model: UserDefaultsStorable>(modelType: Model.Type)
-  func read<Model: UserDefaultsStorable>() -> Model?
-}
-
-public final class UserDefaultsClientImpl: UserDefaultsClient {
+public struct UserDefaultsClient {
   private let userDefaults: UserDefaults
-  
+
   init(userDefaults: UserDefaults) {
     self.userDefaults = userDefaults
   }
-  
-  public func create<Model: UserDefaultsStorable>(model: Model) {
+
+  public func create<Model: UserDefaultsStorable>(model: Model) async {
     guard let modelData = try? JSONEncoder().encode(model) else {
       return
     }
     userDefaults.set(modelData, forKey: Model.key)
   }
 
-  public func delete<Model: UserDefaultsStorable>(modelType: Model.Type) {
+  public func delete<Model: UserDefaultsStorable>(modelType: Model.Type) async {
     userDefaults.removeObject(forKey: modelType.key)
   }
 
@@ -33,29 +27,5 @@ public final class UserDefaultsClientImpl: UserDefaultsClient {
       return nil
     }
     return try? JSONDecoder().decode(Model.self, from: modelData)
-  }
-}
-
-public final class UserDefaultsClientMock: UserDefaultsClient {
-  private var storage: [String: Codable] = [:]
-  
-  public static let instance = UserDefaultsClientMock()
-  
-  public func create<Model: UserDefaultsStorable>(model: Model) {
-    storage[Model.key] = model
-  }
-
-  public func delete<Model: UserDefaultsStorable>(modelType: Model.Type) {
-    storage[Model.key] = nil
-  }
-
-  public func read<Model: UserDefaultsStorable>() -> Model? {
-    storage[Model.key] as? Model
-  }
-}
-
-extension UserDefaultsClientImpl {
-  public static var live: Self {
-    Self(userDefaults: UserDefaults(suiteName: "group.xrate")!)
   }
 }
